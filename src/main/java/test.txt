@@ -16,93 +16,45 @@
 
 package io.netty.handler.codec.mqtt;
 
-import io.netty.util.internal.StringUtil;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Variable Header for the {@link MqttConnectMessage}
+ * Return Code of {@link io.netty.handler.codec.mqtt.MqttConnAckMessage}
  */
-public class MqttConnectVariableHeader {
+public enum MqttConnectReturnCode {
+    CONNECTION_ACCEPTED((byte) 0x00),
+    CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION((byte) 0X01),
+    CONNECTION_REFUSED_IDENTIFIER_REJECTED((byte) 0x02),
+    CONNECTION_REFUSED_SERVER_UNAVAILABLE((byte) 0x03),
+    CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD((byte) 0x04),
+    CONNECTION_REFUSED_NOT_AUTHORIZED((byte) 0x05);
 
-    private final String name;
-    private final int version;
-    private final boolean hasUserName;
-    private final boolean hasPassword;
-    private final boolean isWillRetain;
-    private final int willQos;
-    private final boolean isWillFlag;
-    private final boolean isCleanSession;
-    private final int keepAliveTimeSeconds;
+    private  static final Map<Byte, MqttConnectReturnCode> valueToCodeMap;
 
-    public MqttConnectVariableHeader(
-            String name,
-            int version,
-            boolean hasUserName,
-            boolean hasPassword,
-            boolean isWillRetain,
-            int willQos,
-            boolean isWillFlag,
-            boolean isCleanSession,
-            int keepAliveTimeSeconds) {
-        this.name = name;
-        this.version = version;
-        this.hasUserName = hasUserName;
-        this.hasPassword = hasPassword;
-        this.isWillRetain = isWillRetain;
-        this.willQos = willQos;
-        this.isWillFlag = isWillFlag;
-        this.isCleanSession = isCleanSession;
-        this.keepAliveTimeSeconds = keepAliveTimeSeconds;
+    static {
+        final Map<Byte, MqttConnectReturnCode> valueMap = new HashMap<Byte, MqttConnectReturnCode>();
+        for (MqttConnectReturnCode code: values()) {
+            valueMap.put(code.byteValue, code);
+        }
+        valueToCodeMap = Collections.unmodifiableMap(valueMap);
     }
 
-    public String name() {
-        return name;
+    private final byte byteValue;
+
+    MqttConnectReturnCode(byte byteValue) {
+        this.byteValue = byteValue;
     }
 
-    public int version() {
-        return version;
+    public byte byteValue() {
+        return byteValue;
     }
 
-    public boolean hasUserName() {
-        return hasUserName;
-    }
-
-    public boolean hasPassword() {
-        return hasPassword;
-    }
-
-    public boolean isWillRetain() {
-        return isWillRetain;
-    }
-
-    public int willQos() {
-        return willQos;
-    }
-
-    public boolean isWillFlag() {
-        return isWillFlag;
-    }
-
-    public boolean isCleanSession() {
-        return isCleanSession;
-    }
-
-    public int keepAliveTimeSeconds() {
-        return keepAliveTimeSeconds;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder(StringUtil.simpleClassName(this))
-            .append('[')
-            .append("name=").append(name)
-            .append(", version=").append(version)
-            .append(", hasUserName=").append(hasUserName)
-            .append(", hasPassword=").append(hasPassword)
-            .append(", isWillRetain=").append(isWillRetain)
-            .append(", isWillFlag=").append(isWillFlag)
-            .append(", isCleanSession=").append(isCleanSession)
-            .append(", keepAliveTimeSeconds=").append(keepAliveTimeSeconds)
-            .append(']')
-            .toString();
+    public static MqttConnectReturnCode valueOf(byte b) {
+        if (valueToCodeMap.containsKey(b)) {
+            return valueToCodeMap.get(b);
+        }
+        throw new IllegalArgumentException("unknown connect return code: " + (b & 0xFF));
     }
 }
